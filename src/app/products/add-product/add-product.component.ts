@@ -3,7 +3,12 @@ import {
   AngularFireStorage,
   AngularFireUploadTask,
 } from '@angular/fire/compat/storage';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { IImage } from 'src/app/shared/models/i-image';
@@ -28,14 +33,18 @@ export class AddProductComponent implements OnInit {
   ) {}
   productForm = this.fb.group({
     id: [''],
-    title: [''],
-    price: [''],
-    description: [''],
-    image: [''],
-    category: [''],
+    title: ['', [Validators.required]],
+    price: ['', [Validators.required]],
+    description: ['', [Validators.required]],
+    image: ['', [Validators.required]],
+    category: ['', [Validators.required]],
   });
 
   ngOnInit(): void {}
+
+  getFormField(filedName: string) {
+    return this.productForm.get(filedName) as FormControl;
+  }
 
   async onFileChanged(event: any) {
     const file = event.target.files[0];
@@ -58,10 +67,13 @@ export class AddProductComponent implements OnInit {
 
   onSubmit() {
     if (this.productForm.invalid) {
+      this.productForm.markAllAsTouched();
       return;
     }
     this.productService.addProduct(this.productForm.value).subscribe({
-      next: (val) => {},
+      next: (val) => {
+        this.router.navigate(['/product']);
+      },
       error: (err) => {},
     });
   }
